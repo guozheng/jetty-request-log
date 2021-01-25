@@ -1,6 +1,9 @@
 package hellojetty;
 
-import hellojetty.filter.SampledRequestLogFilter;
+import hellojetty.filter.AsyncBodyRequestLogFilter;
+import hellojetty.filter.BodyRequestLogFilter;
+import hellojetty.filter.ResponseDecoratorFilter;
+import hellojetty.servlet.AsyncHelloServlet;
 import hellojetty.servlet.HelloServlet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,16 +33,26 @@ public class ServerMain {
 
     // add a sync handler
     context.addServlet(HelloServlet.class, "/hello/*");
+    // add an async handler
+    context.addServlet(AsyncHelloServlet.class, "/async-hello/*");
 
-    // add a test filter
-    context.addFilter(SampledRequestLogFilter.class, "/hello/*", EnumSet.of(DispatcherType.REQUEST));
+    // add a sync request logging filter
+    context.addFilter(BodyRequestLogFilter.class, "/hello/*",
+            EnumSet.of(DispatcherType.REQUEST));
+    // add an async request logging filter
+    context.addFilter(AsyncBodyRequestLogFilter.class, "/async-hello/*",
+            EnumSet.of(DispatcherType.REQUEST, DispatcherType.ASYNC));
+
+    // add a sync response decoration filter
+    context.addFilter(ResponseDecoratorFilter.class, "/*",
+            EnumSet.of(DispatcherType.REQUEST, DispatcherType.ASYNC));
 
     HandlerCollection handlers = new HandlerCollection();
 
     // add servlet handlers
     handlers.addHandler(context);
 
-    // add req log
+    // add req log using Jetty's Slf4jRequestLog, it does not log request body
     AbstractNCSARequestLog requestLog = new Slf4jRequestLog();
     requestLog.setLogDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS X");
     requestLog.setLogLocale(Locale.ENGLISH);
@@ -52,20 +65,6 @@ public class ServerMain {
     RequestLogHandler requestLogHandler = new RequestLogHandler();
     requestLogHandler.setRequestLog(requestLog);
     handlers.addHandler(requestLogHandler);
-
-    // add sampled req log for POST
-    AbstractNCSARequestLog sampledRequestLog = new SampledRequestLog();
-    sampledRequestLog.setLogDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS X");
-    sampledRequestLog.setLogLocale(Locale.ENGLISH);
-    sampledRequestLog.setExtended(true);
-    sampledRequestLog.setLogCookies(false);
-    sampledRequestLog.setLogTimeZone("GMT");
-    sampledRequestLog.setLogLatency(true);
-    sampledRequestLog.setLogServer(true);
-    sampledRequestLog.setPreferProxiedForAddress(true);
-    RequestLogHandler sampledRequestLogHandler = new RequestLogHandler();
-    sampledRequestLogHandler.setRequestLog(sampledRequestLog);
-    handlers.addHandler(sampledRequestLogHandler);
 
     server.setHandler(handlers);
 

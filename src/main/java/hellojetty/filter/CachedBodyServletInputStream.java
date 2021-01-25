@@ -1,24 +1,16 @@
-package hellojetty;
+package hellojetty.filter;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
 
-public class ByteArrayStreamCachedServletInputStream extends ServletInputStream {
+public class CachedBodyServletInputStream extends ServletInputStream {
   private final ByteArrayInputStream input;
   private boolean finished = false;
 
-  public ByteArrayStreamCachedServletInputStream(ByteArrayOutputStream cachedBytes) {
-    this.input = new ByteArrayInputStream(cachedBytes.toByteArray());
-  }
-
-  @Override
-  public int read() throws IOException {
-    final int count = input.read();
-    this.finished = true;
-    return count;
+  public CachedBodyServletInputStream(ByteArrayInputStream input) {
+    this.input = input;
   }
 
   @Override
@@ -34,5 +26,11 @@ public class ByteArrayStreamCachedServletInputStream extends ServletInputStream 
   @Override
   public void setReadListener(ReadListener readListener) {
 
+  }
+
+  @Override
+  public int read() throws IOException {
+    this.finished = true;
+    return input.read();
   }
 }

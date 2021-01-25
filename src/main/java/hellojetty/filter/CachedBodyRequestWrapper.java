@@ -1,4 +1,6 @@
-package hellojetty;
+package hellojetty.filter;
+
+import hellojetty.Util;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -8,10 +10,7 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
-/**
- * Another request wrapper implemenation, similar to {@link ByteArrayStreamCachedRequestWrapper}.
- */
-public class StringCachedRequestWrapper extends HttpServletRequestWrapper {
+public class CachedBodyRequestWrapper extends HttpServletRequestWrapper {
   private final String body;
 
   /**
@@ -19,7 +18,7 @@ public class StringCachedRequestWrapper extends HttpServletRequestWrapper {
    *
    * @throws IllegalArgumentException if the request is null
    */
-  public StringCachedRequestWrapper(HttpServletRequest request) {
+  public CachedBodyRequestWrapper(HttpServletRequest request) {
     super(request);
     this.body = Util.getBody(request);
   }
@@ -27,7 +26,7 @@ public class StringCachedRequestWrapper extends HttpServletRequestWrapper {
   @Override
   public ServletInputStream getInputStream() throws IOException {
     final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(body.getBytes());
-    return new StringCachedServletInputStream(byteArrayInputStream);
+    return new CachedBodyServletInputStream(byteArrayInputStream);
   }
 
   @Override

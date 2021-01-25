@@ -18,7 +18,7 @@ public class HelloServlet extends HttpServlet {
       throws IOException {
     LOG.info("Start serving GET request...");
 
-    final String content = "GET Success";
+    final String content = "GET successful";
     resp.setStatus(HttpServletResponse.SC_OK);
     resp.setContentType("text/plain");
     resp.setContentLength(content.length());
@@ -33,7 +33,7 @@ public class HelloServlet extends HttpServlet {
       throws ServletException, IOException {
     LOG.info("Start serving POST request");
 
-    final String content = "POST Success";
+    final String content = "POST successful";
     resp.setStatus(HttpServletResponse.SC_OK);
     resp.setContentType("text/plain");
     resp.setContentLength(content.length());
@@ -41,7 +41,7 @@ public class HelloServlet extends HttpServlet {
     resp.getWriter().println(content);
 
     // processing post body
-    LOG.info("POST body: {}", Util.getPostBody(req));
+    LOG.info("POST body: {}", Util.getBody(req));
 
     LOG.info("Finished serving POST request");
   }

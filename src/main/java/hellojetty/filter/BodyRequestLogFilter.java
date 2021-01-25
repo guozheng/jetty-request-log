@@ -1,6 +1,6 @@
 package hellojetty.filter;
 
-import hellojetty.StringCachedRequestWrapper;
+import hellojetty.Util;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -14,40 +14,40 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class SampledRequestLogFilter implements Filter {
-  private static Logger LOG = LogManager.getLogger(SampledRequestLogFilter.class);
+public class BodyRequestLogFilter implements Filter {
+  private static Logger LOG = LogManager.getLogger(BodyRequestLogFilter.class);
 
   @Override
   public void init(FilterConfig filterConfig) throws ServletException {
-    LOG.info("Filter init");
+    LOG.info("Filter init: {}", this.getClass());
   }
 
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {
-    LOG.info("Start applying filter...");
+    LOG.info("Start applying filter {}...", this.getClass());
 
-    // insert a response header
-    if (request instanceof HttpServletRequest && response instanceof HttpServletResponse) {
-      HttpServletResponse resp = (HttpServletResponse)response;
-      resp.setHeader("X-Test", "true");
-    }
-
+    HttpServletResponse resp = (HttpServletResponse) response;
     // replace request with wrapper request that caches the body
-    request = new StringCachedRequestWrapper((HttpServletRequest) request);
+    HttpServletRequest req = new CachedBodyRequestWrapper((HttpServletRequest) request);
 
     // process request and generate response by servlet
-    chain.doFilter(request, response);
+    chain.doFilter(req, resp);
 
     // read body again for request log
-    StringCachedRequestWrapper wrapper = (StringCachedRequestWrapper)request;
-    LOG.info("BODY from filter: {}", wrapper.getBody());
+    LOG.info(logRequestWithBody(req, resp));
 
-    LOG.info("Finished applying filter");
+    LOG.info("Finished applying filter {}", this.getClass());
   }
 
   @Override
   public void destroy() {
-    LOG.info("Filter destroyed");
+    LOG.info("Filter destroyed: {}", this.getClass());
   }
+
+  protected String logRequestWithBody(HttpServletRequest request,
+                                          HttpServletResponse response) {
+    return Util.buildRequestLogLine(request, response).toString();
+  }
+
 }
