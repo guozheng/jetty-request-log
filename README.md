@@ -1,7 +1,7 @@
 # Log Jetty Request Body in Both Sync and Async Request Processing
 
 ## Overview
-Jetty provides classes such as `NCSARequestLog`, `Slf4jRequestLog` (older versions) and `CustomRequestLog` (newer versions) to log requests in the [https://www.loganalyzer.net/log-analyzer/apache-combined-log.html](NCSA Format), also known as Common Log Format or Apache Log Format. However, these request log implementation does not include request body. In many use cases such as debugging, replaying the requests for performance testing, etc. request body in the request log will be super useful.
+Jetty provides classes such as `NCSARequestLog`, `Slf4jRequestLog` (older versions) and `CustomRequestLog` (newer versions) to log requests in the (NCSA Format)[https://www.loganalyzer.net/log-analyzer/apache-combined-log.html], also known as Common Log Format or Apache Log Format. However, these request log implementation does not include request body. In many use cases such as debugging, replaying the requests for performance testing, etc. request body in the request log will be super useful.
 
 However, it is a bit tricky to log request body since the content for a request object is a stream and it can be consumed only once, when the body is needed to implement the application logic. It is of course possible to log the request body right after consuming the stream, but it is not a clean and reusable way, also for async servlet, this way of logging the request body gets in the way of sending response.
 
