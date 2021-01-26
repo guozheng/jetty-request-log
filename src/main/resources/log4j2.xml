@@ -1,12 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="INFO">
+  <Properties>
+    <Property name="CONSOLE_PATTERN">[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n</Property>
+    <Property name="REQUEST_LOG_PATTERN">%m%n</Property>
+  </Properties>
   <Appenders>
     <Console name="console" target="SYSTEM_OUT">
-      <PatternLayout
-        pattern="[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n" />
+      <PatternLayout pattern="${CONSOLE_PATTERN}" />
     </Console>
+    <RollingRandomAccessFile name="slf4j_request_log" fileName="/tmp/slf4j_request.log"
+                             filePattern="/tmp/request.%i.log"
+                             immediateFlush="true" bufferSize="40960"
+                             append="true">
+      <PatternLayout pattern="${REQUEST_LOG_PATTERN}"/>
+      <Policies>
+        <SizeBasedTriggeringPolicy size="10MB" />
+      </Policies>
+      <DefaultRolloverStrategy max="10"/>
+    </RollingRandomAccessFile>
+    <RollingRandomAccessFile name="request_log" fileName="/tmp/request.log"
+                             filePattern="/tmp/request.%i.log"
+                             immediateFlush="true" bufferSize="40960"
+                             append="true">
+      <PatternLayout pattern="${REQUEST_LOG_PATTERN}"/>
+      <Policies>
+        <SizeBasedTriggeringPolicy size="10MB" />
+      </Policies>
+      <DefaultRolloverStrategy max="10"/>
+    </RollingRandomAccessFile>
   </Appenders>
   <Loggers>
+
+    <!-- loggers for server log -->
     <Root level="info" additivity="false">
       <AppenderRef ref="console" />
     </Root>
@@ -19,5 +44,16 @@
     <Logger name="hellojetty.servlet" level="info" additivity="false">
       <AppenderRef ref="console" />
     </Logger>
+
+    <!-- logger for Jetty's Slf4jRequestLog -->
+    <Logger name="Slf4jRequestLog" level="info" additivity="false">
+      <AppenderRef ref="slf4j_request_log" />
+    </Logger>
+
+    <!-- logger for our request log with body -->
+    <Logger name="RequestLog" level="info" additivity="false">
+      <AppenderRef ref="request_log" />
+    </Logger>
+
   </Loggers>
 </Configuration>

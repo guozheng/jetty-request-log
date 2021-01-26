@@ -17,6 +17,9 @@ import javax.servlet.http.HttpServletResponse;
 public class BodyRequestLogFilter implements Filter {
   private static Logger LOG = LogManager.getLogger(BodyRequestLogFilter.class);
 
+  // logger name needs to match config in log4j2.xml
+  private static Logger REQUEST_LOG = LogManager.getLogger("RequestLog");
+
   @Override
   public void init(FilterConfig filterConfig) throws ServletException {
     LOG.info("Filter init: {}", this.getClass());
@@ -34,8 +37,8 @@ public class BodyRequestLogFilter implements Filter {
     // process request and generate response by servlet
     chain.doFilter(req, resp);
 
-    // read body again for request log
-    LOG.info(logRequestWithBody(req, resp));
+    // output to request log with body
+    REQUEST_LOG.info(Util.buildRequestLogLine(req, resp).toString());
 
     LOG.info("Finished applying filter {}", this.getClass());
   }
@@ -43,11 +46,6 @@ public class BodyRequestLogFilter implements Filter {
   @Override
   public void destroy() {
     LOG.info("Filter destroyed: {}", this.getClass());
-  }
-
-  protected String logRequestWithBody(HttpServletRequest request,
-                                          HttpServletResponse response) {
-    return Util.buildRequestLogLine(request, response).toString();
   }
 
 }

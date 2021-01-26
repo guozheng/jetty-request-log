@@ -12,7 +12,7 @@ plugins {
 version = '0.0.1'
 
 apply plugin: 'application'
-mainClassName = 'hellojetty.ServerMain'
+mainClassName = 'hellojetty.Server'
 
 repositories {
     mavenCentral()

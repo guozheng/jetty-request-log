@@ -8,7 +8,6 @@ import hellojetty.servlet.HelloServlet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.server.AbstractNCSARequestLog;
-import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.Slf4jRequestLog;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.RequestLogHandler;
@@ -22,11 +21,11 @@ import javax.servlet.DispatcherType;
  * Demo code from Jetty documentation.
  * See: https://www.eclipse.org/jetty/documentation/jetty-9/index.html#embedding-jetty
  */
-public class ServerMain {
-  private static Logger LOG = LogManager.getLogger(ServerMain.class);
+public class Server {
+  private static Logger LOG = LogManager.getLogger(Server.class);
 
-  private static Server createServer() {
-    Server server = new Server(8080);
+  private static org.eclipse.jetty.server.Server createServer() {
+    org.eclipse.jetty.server.Server server = new org.eclipse.jetty.server.Server(8080);
 
     ServletContextHandler context = new ServletContextHandler(
         server, "/", true, false);
@@ -53,7 +52,8 @@ public class ServerMain {
     handlers.addHandler(context);
 
     // add req log using Jetty's Slf4jRequestLog, it does not log request body
-    AbstractNCSARequestLog requestLog = new Slf4jRequestLog();
+    Slf4jRequestLog requestLog = new Slf4jRequestLog();
+    requestLog.setLoggerName("Slf4jRequestLog"); // see logger config in log4j2.xml
     requestLog.setLogDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS X");
     requestLog.setLogLocale(Locale.ENGLISH);
     requestLog.setExtended(true);
@@ -73,7 +73,7 @@ public class ServerMain {
 
   public static void main(String[] args) throws Exception {
     LOG.info("server starting...");
-    Server server = createServer();
+    org.eclipse.jetty.server.Server server = createServer();
 
     server.start();
     LOG.info("server started...");

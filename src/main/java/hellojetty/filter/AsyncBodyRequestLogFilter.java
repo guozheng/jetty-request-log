@@ -12,6 +12,9 @@ import java.io.IOException;
 public class AsyncBodyRequestLogFilter implements Filter {
     private static Logger LOG = LogManager.getLogger(AsyncBodyRequestLogFilter.class);
 
+    // logger name needs to match config in log4j2.xml
+    private static Logger REQUEST_LOG = LogManager.getLogger("RequestLog");
+
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         LOG.info("Filter init: {}", this.getClass());
@@ -33,19 +36,19 @@ public class AsyncBodyRequestLogFilter implements Filter {
         ctx.addListener(new AsyncListener() {
             @Override
             public void onComplete(AsyncEvent event) throws IOException {
-                LOG.info(logRequestWithBody(req, resp));
+                REQUEST_LOG.info(Util.buildRequestLogLine(req, resp));
                 LOG.info("ctx completed, applying filter {}", this.getClass());
             }
 
             @Override
             public void onTimeout(AsyncEvent event) throws IOException {
-                LOG.info(logRequestWithBody(req, resp));
+                REQUEST_LOG.info(Util.buildRequestLogLine(req, resp));
                 LOG.info("ctx timed out, applying filter {}", this.getClass());
             }
 
             @Override
             public void onError(AsyncEvent event) throws IOException {
-                LOG.info(logRequestWithBody(req, resp));
+                REQUEST_LOG.info(Util.buildRequestLogLine(req, resp));
                 LOG.info("ctx had error, applying filter {}", this.getClass());
             }
 
@@ -61,8 +64,4 @@ public class AsyncBodyRequestLogFilter implements Filter {
         LOG.info("Filter destroyed: {}", this.getClass());
     }
 
-    protected String logRequestWithBody(HttpServletRequest request,
-                                     HttpServletResponse response) {
-        return Util.buildRequestLogLine(request, response).toString();
-    }
 }
